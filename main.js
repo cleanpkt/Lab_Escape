@@ -7,6 +7,7 @@
   const gameScreen = $('#game-screen');
   const settingsScreen = $('#settings-screen');
   const endingScreen = $('#ending-screen');
+  const externalTitleBar = $('#external-title-bar');
   const btnNew = $('#btn-new');
   const btnContinue = $('#btn-continue');
   const btnSettings = $('#btn-settings');
@@ -188,6 +189,8 @@
 
   // Rendering
   async function showNode(id) {
+    // introの2度目以降は別文言ノードへ誘導
+    if (id === 'intro' && state && state._intro_seen) id = 'intro2';
     const node = story.nodes[id];
     if (!node) return;
 
@@ -235,6 +238,12 @@
 
     await fadeAudioTo(settings.volume, 200);
 
+    // 最初のintroを見た後はフラグを立てる
+    if (id === 'intro' && !state._intro_seen) {
+      state._intro_seen = true;
+      saveGame();
+    }
+
     if (node.end) {
       // slight pause then show ending screen
       await sleep(400);
@@ -245,6 +254,7 @@
   function switchScreen(el) {
     [titleScreen, gameScreen, settingsScreen, endingScreen].forEach((s) => s.classList.remove('active'));
     el.classList.add('active');
+    if (externalTitleBar) externalTitleBar.style.display = (el === gameScreen) ? 'block' : 'none';
   }
 
   function startNewGame() {
@@ -252,7 +262,7 @@
     currentNodeId = story.start;
     clearSave();
     saveGame();
-    if (bgm.paused) bgm.play().catch(() => {});
+    ensureBgm();
     switchScreen(gameScreen);
     showNode(currentNodeId);
   }
@@ -262,7 +272,7 @@
     if (!data) return;
     state = data.state || {};
     currentNodeId = data.nodeId || story.start;
-    if (bgm.paused) bgm.play().catch(() => {});
+    ensureBgm();
     switchScreen(gameScreen);
     showNode(currentNodeId);
   }
@@ -270,7 +280,7 @@
   // UI bindings
   btnNew.addEventListener('click', startNewGame);
   btnContinue.addEventListener('click', continueGame);
-  btnSettings.addEventListener('click', () => { switchScreen(settingsScreen); });
+  btnSettings.addEventListener('click', () => { ensureBgm(); switchScreen(settingsScreen); });
   btnSettingsBack.addEventListener('click', () => { switchScreen(titleScreen); });
   btnTitle.addEventListener('click', async () => {
     await fadeOverlayTo(true, 200);
@@ -316,6 +326,13 @@
     }
   }
 
+  function ensureBgm() {
+    try {
+      bgm.volume = settings.volume;
+      if (bgm.paused) bgm.play().catch(() => {});
+    } catch (_) {}
+  }
+
   async function init() {
     loadSettings();
     updateSettingsUI();
@@ -335,6 +352,11 @@
 
     // Ensure BGM volume aligned
     bgm.volume = settings.volume;
+
+    // タイトル画面での初回ユーザー操作でBGMを開始
+    const startOnGesture = () => { ensureBgm(); document.removeEventListener('pointerdown', startOnGesture); document.removeEventListener('keydown', startOnGesture); };
+    document.addEventListener('pointerdown', startOnGesture, { once: true });
+    document.addEventListener('keydown', startOnGesture, { once: true });
   }
 
   document.addEventListener('DOMContentLoaded', init);

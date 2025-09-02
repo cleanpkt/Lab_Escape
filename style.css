@@ -11,8 +11,8 @@
   --fg: #121212;
   --muted: #666;
   --accent: #1a73e8;
-  --panel: #f5f5f5;
-  --border: #e5e5e5;
+  --panel: #ffffff; /* 内側も白基調 */
+  --border: #000000; /* シンプルな黒枠 */
 }
 
 * { box-sizing: border-box; }
@@ -46,6 +46,7 @@ body {
   background: #fff;
   border: 4px solid #000; /* シンプルな黒枠のみ */
   border-radius: 8px;
+  position: relative;
 }
 
 .screen { display: none; width: 100%; height: 100%; }
@@ -82,50 +83,49 @@ button.small { font-size: 14px; padding: 6px 10px; }
   border: 2px solid var(--border);
   padding: 16px;
   border-radius: 10px;
-  height: calc(100% - 64px);
+  height: 100%;
   overflow: hidden;
+  grid-template-rows: 44% 24% 32%; /* テキスト/選択肢をさらに広げる */
 }
 
 .scene {
   position: relative;
-  min-height: 280px;
-  background: #fff;
+  min-height: 0;
+  background: #ffffff; /* 白背景に戻す */
   border: 2px solid var(--border);
   border-radius: 8px;
   overflow: hidden;
 }
 
 /* Background variants from story.json `bg` */
-.scene.bg-lab {
-  background: repeating-linear-gradient(
-    0deg,
-    #ffffff 0px, #ffffff 14px,
-    #f9f9f9 14px, #f9f9f9 28px
-  );
-}
+/* ノードのbg指定（必要なら個別に追加）。デフォルトは白 */
+.scene.bg-lab { background: #ffffff; }
 
 #stand-image {
   position: absolute;
   right: 16px;
-  bottom: 16px;
-  width: 200px;
+  bottom: 0;
+  width: min(38%, 260px);
   height: auto;
   image-rendering: pixelated;
   filter: contrast(110%);
 }
 
 .textbox {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  background: rgba(255, 255, 255, 0.98);
-  border-top: 2px solid var(--border);
+  position: relative;
+  background: #ffffff; /* 完全な白 */
+  border: 2px solid var(--border);
+  border-radius: 8px;
   padding: 14px 16px 8px 16px;
+  overflow: hidden;
 }
 
 #text {
   line-height: 1.8;
   font-size: 18px;
-  min-height: 5.5em; /* keep box size steady */
+  height: 100%;
+  overflow: auto; /* 長文でも高さ固定でスクロール */
+  padding-right: 28px; /* 右端のスキップアイコンと重ならない余白 */
 }
 
 /* スキップアイコン（▶）を右端に配置・点滅 */
@@ -138,30 +138,60 @@ button.small { font-size: 14px; padding: 6px 10px; }
   padding: 4px 6px;
   font-size: 18px;
   line-height: 1;
-  opacity: 0; /* タイピング中のみ表示 */
-  pointer-events: none;
-}
-.textbox.typing #skip-btn {
-  opacity: 0.85;
+  color: var(--fg);
+  opacity: 0.6; /* 常時見える */
+  pointer-events: none; /* タイピング時のみ有効 */
   animation: skip-blink 900ms infinite ease-in-out;
-  pointer-events: auto;
 }
+.textbox.typing #skip-btn { opacity: 0.95; pointer-events: auto; }
 @keyframes skip-blink {
   0%, 100% { opacity: 0.35; }
   50% { opacity: 0.95; }
 }
 
+/* 選択肢は常に全文表示（スクロール無し） */
 .choices {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 10px;
   display: grid;
   gap: 8px;
-  max-height: 160px;
-  overflow: auto;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  max-height: none;
+  overflow: visible; /* スクロールしない */
+  grid-auto-rows: min-content;
 }
 .choices li { margin: 0; }
-.choices button { width: 100%; text-align: left; }
+.choices button {
+  width: 100%;
+  text-align: left;
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* 画像エリアのタイトル */
+.scene-title {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-size: 16px;
+  padding: 4px 8px;
+  background: #ffffff;
+  border: 2px solid #000;
+  border-radius: 6px;
+}
+
+/* 枠外クレジット */
+.credit {
+  position: absolute;
+  right: 0;
+  bottom: -26px; /* 枠の外に表示 */
+  font-size: 12px;
+  color: #000;
+}
+
+/* 旧定義を整理し、下の定義に統一 */
 
 .settings-item {
   display: grid;
@@ -174,3 +204,10 @@ button.small { font-size: 14px; padding: 6px 10px; }
 input[type="range"] { width: 100%; }
 
 h1, h2, h3 { text-align: center; }
+.external-bar {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -48px; /* 枠外下部 */
+  display: none; /* ゲーム画面時のみ表示 */
+}

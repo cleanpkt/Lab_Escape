@@ -17,6 +17,7 @@
   "start": "intro",
   "nodes": {
     "intro": { "bg": "lab", "text": "……目を覚ますと、白い壁と金属の匂い。ここはどこだ？テーブルの上に小さなメモと鍵のようなものが見える。", "choices": [ { "text": "メモを読む", "to": "note" }, { "text": "鍵を手に取る", "to": "get_key", "set": { "key": true } }, { "text": "扉へ向かう", "to": "door" } ] },
+    "intro2": { "bg": "lab", "text": "室内に戻る。さっきより状況は把握できている——棚、テーブル、重い扉。焦らずに確実に進もう。", "choices": [ { "text": "メモをもう一度読む", "to": "note" }, { "text": "棚をもう一度探す", "to": "search" }, { "text": "扉へ向かう", "to": "door" } ] },
     "note": { "bg": "lab", "text": "『実験体へ。ここから出るには電源を復旧し、カードを使え。』カード？どこかにあるのか。", "choices": [ { "text": "戻る", "to": "intro" }, { "text": "部屋を探す", "to": "search" } ] },
     "get_key": { "bg": "lab", "text": "手のひらサイズの古い鍵を手に入れた。どこかで使えるだろう。", "choices": [ { "text": "戻る", "to": "intro" } ] },
     "search": { "bg": "lab", "text": "棚を探ると、埃をかぶったカードキーと小さなバッテリーを見つけた。", "choices": [ { "text": "カードキーを入手", "to": "search_done", "set": { "card": true } }, { "text": "バッテリーを入手", "to": "search_done", "set": { "battery": true } } ] },
@@ -71,10 +72,7 @@
         </div>
         <ul id="choices" class="choices"></ul>
       </div>
-      <div class="menu under">
-        <button id="btn-title">タイトルへ</button>
-      </div>
-    </section>
+      </section>
 
     <!-- Ending Screen -->
     <section id="ending-screen" class="screen">
@@ -84,6 +82,8 @@
         <button id="btn-ending-title">タイトルへ</button>
       </div>
     </section>
+    <div id="external-title-bar" class="external-bar"><button id="btn-title">タイトルへ</button></div>
+    <div class="credit" id="credit">@susugames 2025</div>
   </main>
 
   <audio id="bgm" src="sounds/bgm1.mp3" preload="auto" loop></audio>
