@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>謎の研究所からの脱出</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="fade-overlay"></div>
+
+  <main id="app">
+    <!-- Fallback embedded story (used if fetch('story.json') fails) -->
+    <script id="story-data" type="application/json" data-fallback>
+{
+  "title": "謎の研究所からの脱出",
+  "start": "intro",
+  "nodes": {
+    "intro": { "bg": "lab", "text": "……目を覚ますと、白い壁と金属の匂い。ここはどこだ？テーブルの上に小さなメモと鍵のようなものが見える。", "choices": [ { "text": "メモを読む", "to": "note" }, { "text": "鍵を手に取る", "to": "get_key", "set": { "key": true } }, { "text": "扉へ向かう", "to": "door" } ] },
+    "note": { "bg": "lab", "text": "『実験体へ。ここから出るには電源を復旧し、カードを使え。』カード？どこかにあるのか。", "choices": [ { "text": "戻る", "to": "intro" }, { "text": "部屋を探す", "to": "search" } ] },
+    "get_key": { "bg": "lab", "text": "手のひらサイズの古い鍵を手に入れた。どこかで使えるだろう。", "choices": [ { "text": "戻る", "to": "intro" } ] },
+    "search": { "bg": "lab", "text": "棚を探ると、埃をかぶったカードキーと小さなバッテリーを見つけた。", "choices": [ { "text": "カードキーを入手", "to": "search_done", "set": { "card": true } }, { "text": "バッテリーを入手", "to": "search_done", "set": { "battery": true } } ] },
+    "search_done": { "bg": "lab", "text": "役に立ちそうなものをポケットへ。", "choices": [ { "text": "さらに探す", "to": "search_more" }, { "text": "扉へ向かう", "to": "door" } ] },
+    "search_more": { "bg": "lab", "text": "これ以上めぼしいものは無さそうだ。", "choices": [ { "text": "扉へ向かう", "to": "door" } ] },
+    "door": { "bg": "lab", "text": "重厚な扉が行く手を阻む。鍵穴とカードリーダー、そして電源のインジケーターが光っていない。", "choices": [ { "text": "鍵で開けてみる", "to": "door_key", "need": { "key": true } }, { "text": "カードを使う", "to": "door_card", "need": { "card": true, "power": true } }, { "text": "電源を復旧する", "to": "power_on", "need": { "battery": true }, "set": { "power": true } }, { "text": "部屋へ戻る", "to": "intro" } ] },
+    "power_on": { "bg": "lab", "text": "バッテリーを装置に繋ぐと低い起動音が鳴り、表示が明るくなった。", "choices": [ { "text": "カードを使う", "to": "door_card", "need": { "card": true, "power": true } }, { "text": "鍵で開けてみる", "to": "door_key", "need": { "key": true } }, { "text": "戻る", "to": "door" } ] },
+    "door_key": { "bg": "lab", "text": "鍵を差し込んで回してみる……が、錠前は中からロックされているようだ。", "choices": [ { "text": "カードを試す", "to": "door_card", "need": { "card": true, "power": true } }, { "text": "戻る", "to": "door" } ] },
+    "door_card": { "bg": "lab", "text": "カードを通すと、重いロックが外れる音が連鎖していく。扉がゆっくりと開いた。", "choices": [ { "text": "外へ出る", "to": "escape", "set": { "escaped": true } } ] },
+    "escape": { "bg": "lab", "text": "眩しい光の先には、自由な空気が満ちていた——。", "end": true, "choices": [] }
+  }
+}
+    </script>
+    <!-- Title Screen -->
+    <section id="title-screen" class="screen active">
+      <h1 class="game-title">謎の研究所からの脱出</h1>
+      <div class="menu">
+        <button id="btn-new">はじめから</button>
+        <button id="btn-continue" disabled>つづきから</button>
+        <button id="btn-settings">設定</button>
+      </div>
+      <p class="hint">クリックで選択 / テキストをタップでスキップ</p>
+    </section>
+
+    <!-- Settings Screen -->
+    <section id="settings-screen" class="screen">
+      <h2>設定</h2>
+      <div class="settings-item">
+        <label for="volume">BGM音量</label>
+        <input id="volume" type="range" min="0" max="1" step="0.01" />
+        <span id="volume-value"></span>
+      </div>
+      <div class="settings-item">
+        <label for="speed">文字速度</label>
+        <input id="speed" type="range" min="10" max="60" step="1" />
+        <span id="speed-value"></span>
+      </div>
+      <div class="menu">
+        <button id="btn-settings-back">もどる</button>
+      </div>
+    </section>
+
+    <!-- Game Screen -->
+    <section id="game-screen" class="screen">
+      <div class="viewport">
+        <div class="scene" id="scene">
+          <img id="stand-image" src="images/image1.png" alt="立ち絵" />
+        </div>
+        <div class="textbox" id="textbox">
+          <div id="text"></div>
+          <button id="skip-btn" class="small" aria-label="スキップ">▶</button>
+        </div>
+        <ul id="choices" class="choices"></ul>
+      </div>
+      <div class="menu under">
+        <button id="btn-title">タイトルへ</button>
+      </div>
+    </section>
+
+    <!-- Ending Screen -->
+    <section id="ending-screen" class="screen">
+      <h2>脱出成功！</h2>
+      <p>プレイありがとうございます。</p>
+      <div class="menu">
+        <button id="btn-ending-title">タイトルへ</button>
+      </div>
+    </section>
+  </main>
+
+  <audio id="bgm" src="sounds/bgm1.mp3" preload="auto" loop></audio>
+
+  <script src="main.js"></script>
+  <noscript>このゲームを遊ぶにはJavaScriptを有効にしてください。</noscript>
+</body>
+\n+</html>

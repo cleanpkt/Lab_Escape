@@ -1,0 +1,94 @@
+{
+  "title": "謎の研究所からの脱出",
+  "start": "intro",
+  "nodes": {
+    "intro": {
+      "bg": "lab",
+      "text": "……目を覚ますと、白い壁と金属の匂い。ここはどこだ？テーブルの上に小さなメモと鍵のようなものが見える。",
+      "choices": [
+        { "text": "メモを読む", "to": "note" },
+        { "text": "鍵を手に取る", "to": "get_key", "set": { "key": true } },
+        { "text": "扉へ向かう", "to": "door" }
+      ]
+    },
+    "note": {
+      "bg": "lab",
+      "text": "『実験体へ。ここから出るには電源を復旧し、カードを使え。』カード？どこかにあるのか。",
+      "choices": [
+        { "text": "戻る", "to": "intro" },
+        { "text": "部屋を探す", "to": "search" }
+      ]
+    },
+    "get_key": {
+      "bg": "lab",
+      "text": "手のひらサイズの古い鍵を手に入れた。どこかで使えるだろう。",
+      "choices": [
+        { "text": "戻る", "to": "intro" }
+      ]
+    },
+    "search": {
+      "bg": "lab",
+      "text": "棚を探ると、埃をかぶったカードキーと小さなバッテリーを見つけた。",
+      "choices": [
+        { "text": "カードキーを入手", "to": "search_done", "set": { "card": true } },
+        { "text": "バッテリーを入手", "to": "search_done", "set": { "battery": true } }
+      ]
+    },
+    "search_done": {
+      "bg": "lab",
+      "text": "役に立ちそうなものをポケットへ。",
+      "choices": [
+        { "text": "さらに探す", "to": "search_more" },
+        { "text": "扉へ向かう", "to": "door" }
+      ]
+    },
+    "search_more": {
+      "bg": "lab",
+      "text": "これ以上めぼしいものは無さそうだ。",
+      "choices": [
+        { "text": "扉へ向かう", "to": "door" }
+      ]
+    },
+    "door": {
+      "bg": "lab",
+      "text": "重厚な扉が行く手を阻む。鍵穴とカードリーダー、そして電源のインジケーターが光っていない。",
+      "choices": [
+        { "text": "鍵で開けてみる", "to": "door_key", "need": { "key": true } },
+        { "text": "カードを使う", "to": "door_card", "need": { "card": true, "power": true } },
+        { "text": "電源を復旧する", "to": "power_on", "need": { "battery": true }, "set": { "power": true } },
+        { "text": "部屋へ戻る", "to": "intro" }
+      ]
+    },
+    "power_on": {
+      "bg": "lab",
+      "text": "バッテリーを装置に繋ぐと低い起動音が鳴り、表示が明るくなった。",
+      "choices": [
+        { "text": "カードを使う", "to": "door_card", "need": { "card": true, "power": true } },
+        { "text": "鍵で開けてみる", "to": "door_key", "need": { "key": true } },
+        { "text": "戻る", "to": "door" }
+      ]
+    },
+    "door_key": {
+      "bg": "lab",
+      "text": "鍵を差し込んで回してみる……が、錠前は中からロックされているようだ。",
+      "choices": [
+        { "text": "カードを試す", "to": "door_card", "need": { "card": true, "power": true } },
+        { "text": "戻る", "to": "door" }
+      ]
+    },
+    "door_card": {
+      "bg": "lab",
+      "text": "カードを通すと、重いロックが外れる音が連鎖していく。扉がゆっくりと開いた。",
+      "choices": [
+        { "text": "外へ出る", "to": "escape", "set": { "escaped": true } }
+      ]
+    },
+    "escape": {
+      "bg": "lab",
+      "text": "眩しい光の先には、自由な空気が満ちていた——。",
+      "end": true,
+      "choices": []
+    }
+  }
+}
+
